@@ -166,21 +166,24 @@
             display: block;
         }
 
-        /* Action Button */
-        .btn-generate {
+        /* Action Buttons */
+        .btn-generate, .btn-create-own {
             width: 100%;
             padding: 15px;
             border: none;
             border-radius: 50px;
-            background: linear-gradient(45deg, #ff8c00, #ffd700);
             color: #000;
             font-size: 1.1rem;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
             transition: all 0.3s ease;
             outline: 2px solid transparent;
             outline-offset: 2px;
+        }
+
+        .btn-generate {
+            background: linear-gradient(45deg, #ff8c00, #ffd700);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
         }
 
         .btn-generate:hover {
@@ -194,6 +197,20 @@
             color: #888;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .btn-create-own {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 114, 255, 0.4);
+            margin-top: 25px;
+            display: none; /* Hidden by default */
+        }
+
+        .btn-create-own:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(0, 114, 255, 0.6);
+            outline: 2px solid #00c6ff;
         }
 
         /* Result Section */
@@ -213,7 +230,7 @@
             border: 4px solid var(--primary);
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
             margin: 0 auto 15px;
-            display: none; /* Shown via JS if uploaded */
+            display: none; 
         }
 
         .result-message {
@@ -261,6 +278,8 @@
             font-size: 1.4rem;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: none;
+            cursor: pointer;
         }
 
         .share-btn:hover {
@@ -279,6 +298,9 @@
         .btn-imo { background: #00A3FF; }
         .btn-imo:hover { box-shadow: 0 5px 20px rgba(0, 163, 255, 0.6); }
 
+        .btn-copy { background: #666; }
+        .btn-copy:hover { box-shadow: 0 5px 20px rgba(102, 102, 102, 0.6); }
+
         /* Loader */
         .loader {
             display: inline-block;
@@ -291,6 +313,14 @@
             vertical-align: middle;
             margin-right: 10px;
             display: none;
+        }
+        
+        /* System Loader for View Mode */
+        #systemLoader {
+            display: none;
+            margin: 20px 0;
+            color: var(--primary);
+            font-weight: 600;
         }
 
         /* Animations */
@@ -349,6 +379,8 @@
             transition: bottom 0.3s ease;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 90%;
         }
         #toast.show { bottom: 20px; }
 
@@ -362,7 +394,6 @@
             width: 100%;
             z-index: 50;
         }
-
     </style>
 </head>
 <body>
@@ -371,7 +402,7 @@
 
     <!-- Audio Player (Hidden) & Controls -->
     <audio id="bgAudio" src="song.mp3" loop></audio>
-    <div class="audio-controls" id="audioToggle" onclick="toggleAudio()">
+    <div class="audio-controls" id="audioToggle" onclick="window.toggleAudio()">
         <i class="fas fa-volume-mute" id="audioIcon"></i>
     </div>
 
@@ -386,6 +417,8 @@
             <span style="font-size: 1.1rem; font-weight: 600; text-shadow: none; color: #f0f0f0;">নীল আকাশে ঈদ-এর চাঁদ,ঈদের আগে চাঁদনী রাত,ঈদ হল খুশির দিন,দাওয়াত রইলো ঈদের দিন।ভালো থেকো সীমাহীন,ঈদ-এর দিন টা হোক রঙিন।🌺’༉༎* ঈদ মোবারাক*🌺’༉༎</span>
         </div>
 
+        <div id="systemLoader"><i class="fas fa-spinner fa-spin"></i> Loading Greeting...</div>
+
         <!-- Input Section -->
         <div id="input-section">
             <div class="input-group">
@@ -396,35 +429,36 @@
                 <label for="userPhoto" class="custom-file-upload">
                     <i class="fas fa-camera"></i> Upload Your Photo (Optional)
                 </label>
-                <input type="file" id="userPhoto" accept="image/*" onchange="updateFileName(this)">
+                <input type="file" id="userPhoto" accept="image/*" onchange="window.updateFileName(this)">
                 <span class="file-name-display" id="fileName">No file chosen</span>
             </div>
 
-            <button class="btn-generate" id="generateBtn" onclick="generateWish()">
+            <button class="btn-generate" id="generateBtn" onclick="window.generateWish()">
                 <span class="loader" id="btnLoader"></span>
                 <span id="btnText">✨ Generate Eid Wish</span>
             </button>
         </div>
 
-        <!-- Result Section (Hidden initially) -->
+        <!-- Result Section -->
         <div id="result-section">
             <img src="" alt="User Photo" class="result-image" id="displayImage">
             
-            <div class="result-message" id="finalMessage">
-                <!-- Generated English message goes here -->
-            </div>
+            <div class="result-message" id="finalMessage"></div>
             
-            <div class="bengali-text" id="bengaliMessage">
-                <!-- Generated Bengali message goes here -->
-            </div>
+            <div class="bengali-text" id="bengaliMessage"></div>
 
             <div class="share-title">Share your wish via</div>
             <div class="share-buttons">
                 <a href="#" class="share-btn btn-whatsapp" id="shareWa" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 <a href="#" class="share-btn btn-messenger" id="shareMs" target="_blank"><i class="fab fa-facebook-messenger"></i></a>
                 <a href="#" class="share-btn btn-telegram" id="shareTg" target="_blank"><i class="fab fa-telegram-plane"></i></a>
-                <a href="#" class="share-btn btn-imo" id="shareImo"><i class="fas fa-comment"></i></a> <!-- Using generic comment icon for IMO if no fab fa-imo -->
+                <a href="#" class="share-btn btn-imo" id="shareImo"><i class="fas fa-comment"></i></a>
+                <button class="share-btn btn-copy" id="copyLinkBtn" title="Copy Link"><i class="fas fa-link"></i></button>
             </div>
+
+            <button class="btn-create-own" id="createOwnBtn" onclick="window.resetToCreate()">
+                <i class="fas fa-magic"></i> Create Your Own Greeting
+            </button>
         </div>
     </div>
 
@@ -445,11 +479,37 @@
     <!-- Error/Notification Toast -->
     <div id="toast">Error Message</div>
 
-    <script>
+    <!-- Firebase SDK (ES Modules) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // --- CONFIGURATION ---
-        // Replace this with your actual ImgBB API Key
         const IMGBB_API_KEY = "4eedb6851a7cea2568b20fae037c173c"; 
         
+        // Setup Firebase Configuration
+        // NOTE: If you are hosting this on Blogger, replace the entire object below with your actual Firebase project settings.
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // ---> Blogger Users: PUT YOUR FIREBASE CONFIG HERE <---
+            const firebaseConfig = {
+  apiKey: "AIzaSyDu3QpAju7X-tKPLbG9S-wL9ZjUJj3ShrE",
+  authDomain: "eid-mobarak-3c22b.firebaseapp.com",
+  projectId: "eid-mobarak-3c22b",
+  storageBucket: "eid-mobarak-3c22b.firebasestorage.app",
+  messagingSenderId: "1094480325564",
+  appId: "1:1094480325564:web:a8388104289a4e277a59b9"
+};
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'eid-viral-app';
+
         // --- DOM Elements ---
         const bgAudio = document.getElementById('bgAudio');
         const audioIcon = document.getElementById('audioIcon');
@@ -460,26 +520,27 @@
         const btnLoader = document.getElementById('btnLoader');
         const btnText = document.getElementById('btnText');
         const resultSection = document.getElementById('result-section');
+        const inputSection = document.getElementById('input-section');
         const displayImage = document.getElementById('displayImage');
         const finalMessage = document.getElementById('finalMessage');
         const bengaliMessage = document.getElementById('bengaliMessage');
         const toast = document.getElementById('toast');
+        const systemLoader = document.getElementById('systemLoader');
+        const createOwnBtn = document.getElementById('createOwnBtn');
 
         // --- Audio Logic ---
         let isAudioPlaying = false;
-        
-        // Attempt Autoplay on first interaction
         document.body.addEventListener('click', function initAudio() {
             if (!isAudioPlaying) {
                 bgAudio.play().then(() => {
                     isAudioPlaying = true;
                     audioIcon.classList.replace('fa-volume-mute', 'fa-volume-up');
-                }).catch((e) => console.log("Autoplay prevented:", e));
+                }).catch((e) => console.log("Autoplay prevented by browser"));
             }
             document.body.removeEventListener('click', initAudio);
         });
 
-        function toggleAudio() {
+        window.toggleAudio = function() {
             if (bgAudio.paused) {
                 bgAudio.play();
                 audioIcon.classList.replace('fa-volume-mute', 'fa-volume-up');
@@ -489,10 +550,10 @@
                 audioIcon.classList.replace('fa-volume-up', 'fa-volume-mute');
                 isAudioPlaying = false;
             }
-        }
+        };
 
-        // --- UI Updates ---
-        function updateFileName(input) {
+        // --- UI Utils ---
+        window.updateFileName = function(input) {
             if (input.files && input.files.length > 0) {
                 fileNameDisplay.textContent = input.files[0].name;
                 fileNameDisplay.style.color = "#ffd700";
@@ -500,7 +561,7 @@
                 fileNameDisplay.textContent = "No file chosen";
                 fileNameDisplay.style.color = "#aaa";
             }
-        }
+        };
 
         function showToast(msg, isSuccess = false) {
             toast.textContent = msg;
@@ -509,21 +570,66 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // --- Image Upload API ---
-        async function uploadToImgBB(file) {
-            if(IMGBB_API_KEY === "YOUR_IMGBB_API_KEY_HERE" || !IMGBB_API_KEY) {
-                throw new Error("ImgBB API Key is missing! Please configure it in the code.");
-            }
+        // --- Initialization & Routing ---
+        async function initializeSystem() {
+            try {
+                // Must authenticate first to read/write to DB
+                await signInAnonymously(auth);
+                
+                // Check if user is visiting a shared link
+                const urlParams = new URLSearchParams(window.location.search);
+                const eid = urlParams.get('eid');
 
+                if (eid) {
+                    inputSection.style.display = 'none';
+                    systemLoader.style.display = 'block';
+                    await loadGreeting(eid);
+                } else {
+                    inputSection.style.display = 'block';
+                    systemLoader.style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Initialization Error:", error);
+                showToast("System initialization failed.");
+                inputSection.style.display = 'block';
+            }
+        }
+
+        async function loadGreeting(eid) {
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'eidGreetings', eid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setupResult(data.name, data.imageUrl, eid, true);
+                } else {
+                    showToast("Greeting not found! Create your own.");
+                    window.resetToCreate();
+                }
+            } catch (error) {
+                showToast("Error loading greeting.");
+                window.resetToCreate();
+            } finally {
+                systemLoader.style.display = 'none';
+            }
+        }
+
+        // Run Init
+        initializeSystem();
+
+        // --- Logic: Image Upload API ---
+        async function uploadToImgBB(file) {
+            if(!IMGBB_API_KEY) {
+                throw new Error("ImgBB API Key is missing!");
+            }
             const formData = new FormData();
             formData.append('image', file);
-
             try {
                 const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
                     method: 'POST',
                     body: formData
                 });
-                
                 const data = await response.json();
                 if (data.success) {
                     return data.data.url;
@@ -531,13 +637,24 @@
                     throw new Error(data.error.message || "Image upload failed");
                 }
             } catch (error) {
-                console.error("Upload Error:", error);
                 throw error;
             }
         }
 
-        // --- Generate Logic ---
-        async function generateWish() {
+        // --- Logic: Save to Firebase ---
+        async function saveToDatabase(name, imageUrl) {
+            const greetingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'eidGreetings');
+            const newDocRef = doc(greetingsRef); // Automatically generates unique ID
+            await setDoc(newDocRef, {
+                name: name,
+                imageUrl: imageUrl || null,
+                createdAt: serverTimestamp()
+            });
+            return newDocRef.id;
+        }
+
+        // --- Logic: Generate Button Action ---
+        window.generateWish = async function() {
             const name = userNameInput.value.trim();
             if (!name) {
                 showToast("Please enter your name first!");
@@ -559,24 +676,24 @@
                     imageUrl = await uploadToImgBB(file);
                 }
 
-                // Setup the Result UI
-                setupResult(name, imageUrl);
+                btnText.textContent = "Saving Greeting...";
+                const eid = await saveToDatabase(name, imageUrl);
+
+                setupResult(name, imageUrl, eid, false);
+                showToast("Greeting Created Successfully!", true);
 
             } catch (error) {
                 showToast(error.message);
-                // Still generate text even if image fails
-                setupResult(name, null);
             } finally {
-                // Restore Button State
                 generateBtn.disabled = false;
                 btnLoader.style.display = "none";
                 btnText.textContent = "✨ Generate Eid Wish";
             }
-        }
+        };
 
-        function setupResult(name, imageUrl) {
-            // Hide input, show result
-            document.getElementById('input-section').style.display = 'none';
+        // --- Logic: Render the Card ---
+        function setupResult(name, imageUrl, eid, isViewing) {
+            inputSection.style.display = 'none';
             resultSection.style.display = 'block';
 
             // Set Image
@@ -588,47 +705,87 @@
             }
 
             // Set Texts
-            const englishMsg = `Eid Mubarak from <span style="color: var(--primary); font-weight: bold;">${name}</span>! 🎉<br>تَقَبَّلَ اللهُ مِنَّا وَ مِنْكُمْ`;
-            finalMessage.innerHTML = englishMsg;
-            
+            finalMessage.innerHTML = `Eid Mubarak from <span style="color: var(--primary); font-weight: bold;">${name}</span>! 🎉<br>تَقَبَّلَ اللهُ مِنَّا وَ مِنْكُمْ`;
             bengaliMessage.innerHTML = `<span style="color: var(--primary); font-weight: bold;">${name}</span> আপনাকে ঈদ উল ফিতরের শুভেচ্ছা জানিয়েছে 🌙`;
 
-            // Prepare Share Links
-            const pageUrl = window.location.href;
-            const plainTextMsg = `✨ Eid Mubarak from ${name}! 🎉 تَقَبَّلَ اللهُ مِنَّا وَ مِنْكُمْ\n${name} আপনাকে ঈদ উল ফিতরের শুভেচ্ছা জানিয়েছে 🌙\n\nView my greeting here: ${pageUrl}`;
+            // Setup the share URL
+            const cleanOriginUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${cleanOriginUrl}?eid=${eid}`;
+            
+            const plainTextMsg = `✨ Eid Mubarak from ${name}! 🎉 تَقَبَّلَ اللهُ مِنَّا وَ مِنْكُمْ\n${name} আপনাকে ঈদ উল ফিতরের শুভেচ্ছা জানিয়েছে 🌙\n\nClick here to see the greeting 👇\n${shareUrl}`;
+            
             const encodedMsg = encodeURIComponent(plainTextMsg);
-            const encodedUrl = encodeURIComponent(pageUrl);
+            const encodedUrl = encodeURIComponent(shareUrl);
 
-            // WhatsApp (Mobile Friendly Scheme)
+            // Update Social Links
             document.getElementById('shareWa').href = `whatsapp://send?text=${encodedMsg}`;
-            
-            // Messenger (Mobile Friendly Share Link)
             document.getElementById('shareMs').href = `fb-messenger://share/?link=${encodedUrl}`;
-            
-            // Telegram
             document.getElementById('shareTg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(`Eid Mubarak from ${name}! 🎉`)}`;
             
-            // IMO (Native URI Scheme or Web Share Fallback)
+            // IMO Native URI
             const imoBtn = document.getElementById('shareImo');
             imoBtn.onclick = (e) => {
                 e.preventDefault();
-                // Attempt to open IMO app
                 window.location.href = `imo://share?text=${encodedMsg}`;
-                
-                // Fallback to Web Share API after a short delay if app didn't open (works well on mobile)
                 setTimeout(() => {
                     if (navigator.share) {
-                        navigator.share({
-                            title: 'Eid Mubarak!',
-                            text: plainTextMsg,
-                            url: pageUrl
-                        }).catch(console.error);
+                        navigator.share({ title: 'Eid Mubarak!', text: plainTextMsg, url: shareUrl }).catch(console.error);
                     }
                 }, 500);
             };
 
-            // Scroll to result smoothly
+            // Copy Link Functionality
+            const copyBtn = document.getElementById('copyLinkBtn');
+            copyBtn.onclick = () => {
+                if(navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareUrl)
+                        .then(() => showToast("Link copied to clipboard!", true))
+                        .catch(() => fallbackCopyTextToClipboard(shareUrl));
+                } else {
+                    fallbackCopyTextToClipboard(shareUrl);
+                }
+            };
+
+            // Visibility for Viral Loop buttons
+            if (isViewing) {
+                createOwnBtn.style.display = 'block';
+            } else {
+                createOwnBtn.style.display = 'none';
+                // Update browser URL without reloading so they can copy it from the address bar
+                window.history.pushState({}, '', `?eid=${eid}`);
+            }
+
             resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // --- Utilities ---
+        window.resetToCreate = function() {
+            resultSection.style.display = 'none';
+            inputSection.style.display = 'block';
+            userNameInput.value = '';
+            userPhotoInput.value = '';
+            fileNameDisplay.textContent = 'No file chosen';
+            fileNameDisplay.style.color = '#aaa';
+            
+            // Remove ?eid from URL without reload
+            window.history.pushState({}, '', window.location.pathname);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Link copied to clipboard!", true);
+            } catch (err) {
+                showToast("Failed to copy link.");
+            }
+            document.body.removeChild(textArea);
         }
     </script>
 </body>
