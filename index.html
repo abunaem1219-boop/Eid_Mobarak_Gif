@@ -447,7 +447,7 @@
             
             <div class="bengali-text" id="bengaliMessage"></div>
 
-            <div class="share-title">Share your wish via</div>
+            <div class="share-title">আপনার বন্ধুদের সাথে শেয়ার করুন 👇</div>
             <div class="share-buttons">
                 <a href="#" class="share-btn btn-whatsapp" id="shareWa" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 <a href="#" class="share-btn btn-messenger" id="shareMs" target="_blank"><i class="fab fa-facebook-messenger"></i></a>
@@ -491,21 +491,20 @@
         // Setup Firebase Configuration
         // NOTE: If you are hosting this on Blogger, replace the entire object below with your actual Firebase project settings.
         let firebaseConfig;
-        if (typeof __firebase_config !== 'undefined') {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } else {
-            // ---> Blogger Users: PUT YOUR FIREBASE CONFIG HERE <---
-            const firebaseConfig = {
-  apiKey: "AIzaSyDu3QpAju7X-tKPLbG9S-wL9ZjUJj3ShrE",
-  authDomain: "eid-mobarak-3c22b.firebaseapp.com",
-  projectId: "eid-mobarak-3c22b",
-  storageBucket: "eid-mobarak-3c22b.firebasestorage.app",
-  messagingSenderId: "1094480325564",
-  appId: "1:1094480325564:web:a8388104289a4e277a59b9"
-};
-        }
-
-        const app = initializeApp(firebaseConfig);
+if (typeof __firebase_config !== 'undefined') {
+    firebaseConfig = JSON.parse(__firebase_config);
+} else {
+    // ---> Blogger Users: PUT YOUR FIREBASE CONFIG HERE <---
+    firebaseConfig = { // <-- এখান থেকে const সরিয়ে দেওয়া হয়েছে
+        apiKey: "AIzaSyDu3QpAju7X-tKPLbG9S-wL9ZjUJj3ShrE",
+        authDomain: "eid-mobarak-3c22b.firebaseapp.com",
+        projectId: "eid-mobarak-3c22b",
+        storageBucket: "eid-mobarak-3c22b.firebasestorage.app",
+        messagingSenderId: "1094480325564",
+        appId: "1:1094480325564:web:a8388104289a4e277a59b9"
+    };
+}
+const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'eid-viral-app';
@@ -590,7 +589,7 @@
                 }
             } catch (error) {
                 console.error("Initialization Error:", error);
-                showToast("System initialization failed.");
+                showToast("Assalamualykum");
                 inputSection.style.display = 'block';
             }
         }
